@@ -1,7 +1,7 @@
-# This file is Copyright (c) 2000-2002 Eric Andreychek.  All rights reserved.
+# This file is Copyright (c) 2000-2003 Eric Andreychek.  All rights reserved.
 # For distribution terms, please see the included LICENSE file.
 #
-# $Id: OpenThought.pm,v 1.77 2002/10/23 01:54:30 andreychek Exp $
+# $Id: OpenThought.pm,v 1.84 2003/04/28 04:28:29 andreychek Exp $
 #
 
 package OpenThought;
@@ -57,14 +57,14 @@ in this documentation.
 
 use strict;
 
-$OpenThought::VERSION="0.63";
+$OpenThought::VERSION="0.64";
 
 # Include the OpenThought core components
 use OpenThought::XML2Hash 0.55 ();
 use OpenThought::Serializer();
 use OpenThought::Template();
 
-use OpenPlugin 0.08 ();
+use OpenPlugin 0.10 ();
 
 
 #/-------------------------------------------------------------------------
@@ -201,6 +201,9 @@ that behaviour.  If autoclear is false, the contents of a select list are
 preserved, and any new data is appended to the select list.  Any number less
 then 1 and 'false' are considered false values, everything else is true.
 
+When autoclear is set to false, you can still clear a select list by passing in
+an empty string as a parameter to the select list.
+
 =item maxselectboxwidth
 
 Aside from Netscape 4, all browsers which receive text into a select box resize
@@ -221,17 +224,19 @@ message to the user in a popup box.
 The name of the parameter which holds the run mode.  The JavaScript in the
 browser uses this when you send data the the server -- it figures out which run
 mode you are trying to run, and sets the appropriate parameters, so
-OpenPlugin::Application can find it.
+L<OpenPlugin::Application> can find it.  This, of course, doesn't matter if you
+aren't using L<OpenPlugin::Application>.
 
 =item order
 
 As parameters are serialized and executed in a particular order, this parameter
-allows you to override the default and specify what this order will be.  This
-is a reference to an array, containing the proper order for all the items in
-the call.  Although this is more useful in the serialize function, it still
-could be beneficial to alter the order of settings.  The current order these
-are executed in are: autoclear, maxselectboxwidth, runmodeparam, fetchstart,
-fetchdisplay, and fetchfinish.
+allows you to override the default and specify exactly what this order will be.
+
+This option is a reference to an array, containing the proper order for all the
+items in the call.  Although this is more useful in the serialize function, it
+still could be beneficial to alter the order of settings.  The current order
+these are executed in are: autoclear, maxselectboxwidth, runmodeparam,
+fetchstart, fetchdisplay, and fetchfinish.
 
 =back
 
@@ -256,10 +261,7 @@ can modify it first if you desire.
 sub settings {
     my ( $self, $params ) = @_;
 
-    my $serializer = OpenThought::Serializer->new({
-                                  need_script   => $self->{need_script},
-                                  OP            => $self->{OP},
-    });
+    my $serializer = OpenThought::Serializer->new({ OP => $self->{OP} });
 
     $serializer->params( $params );
 
@@ -301,9 +303,8 @@ HTML document.  The value of each hash key will be displayed in the
 corresponding field.
 
 For radio buttons, the value for the hash key should be the value of the radio
-button element in the HTML.  The radio button with the name mapping to the hash
-key, and value mapping to that particular hash value, will be the one that gets
-selected.
+button element in the HTML.  The radio button with the name and value which
+matches the hash key and value will be the element that gets selected.
 
 Select List elements are special cases.  Select Lists should have a hash key
 with a reference to an array of arrays.
@@ -312,9 +313,11 @@ There are examples of these below.
 
 =item html
 
-A hash reference containing keys which map to HTML id attributes, such as those
-found in div tags.  The value of each hash key will be displayed within the
-corresponding id attribute.
+A hash reference containing keys which map to HTML id attributes.  You can add
+id tags to nearly any HTML attribute.  The value of each hash key will then be
+displayed within the corresponding id attribute.  This effectively allows you
+to replace any html currently loaded in the browser with whatever content you
+desire, on the fly.
 
 =item focus
 
@@ -324,16 +327,16 @@ to focus.
 =item javascript
 
 A string containing the JavaScript code you wish to run.  This will be run by
-the browser, within your applications namespace.  You do not need to add script
-tags.
+the browser, within your application's namespace.  You do not need to add
+script tags.
 
 =item url
 
-The url parameter allows you to switch between html documents.  All your base
-files that are loaded remain the same -- meaning your session and such are
-preserved -- what changes is the user interface, when using this option.  It
-first expires the cache associated with the form elements in the existing page,
-and then loads the new page you requested.
+The url parameter allows you to load a new html document, in the content frame.
+All your base files which are loaded remain the same -- meaning your session
+and such are preserved -- what changes is the user interface, when using this
+option.  It first expires the cache associated with the form elements in the
+existing page, and then loads the new page you requested.
 
 =item setting
 
@@ -344,11 +347,11 @@ previous value.  The keyword to use for this option is not the literal word
 
 =item order
 
-As parameters are serialized and executed in a particular order, this parameter
-allows you to override the default and specify what this order will be.  This
-is a reference to an array, containing the proper order for all the items in
-the call.  The default order is:  settings (see settings function), followed by
-fields, javascript, url, and focus.
+Since parameters are serialized and executed in a particular order, this
+parameter allows you to override the default and specify what this order will
+be.  This is a reference to an array, containing the proper order for all the
+items in the call.  The default order is:  settings (see settings function),
+followed by fields, html, javascript, url, and focus.
 
 =back
 
@@ -373,15 +376,14 @@ can modify it first if you desire.
 sub serialize {
     my ( $self, $params ) = @_;
 
-    my $serializer = new OpenThought::Serializer({
-                                 need_script   => $self->{need_script},
+    my $serializer = OpenThought::Serializer->new({
                                  save_settings => 1,
                                  OP            => $self->{OP},
                                 });
 
     $serializer->params( $params );
 
-return $serializer->output;
+    return $serializer->output;
 }
 
 
@@ -433,11 +435,11 @@ the server upon a particular event.
 
 A string containing the session id for your application.
 
-=item $run_mode
+=item run_mode
 
-A string containing the current run mode.  The key $run_mode is the
-run_mode_param, as set in the config file, or overridden with the settings() or
-serialize() functions.
+A string containing the current run mode.  The key C<run_mode> is the
+C<run_mode_param>, as set in the config file, or overridden with the
+C<settings()> or C<serialize()> functions.
 
 =back
 
@@ -450,21 +452,20 @@ serialize() functions.
 sub deserialize {
     my ( $self, $xml_param ) = @_;
 
-    return undef if ( !$xml_param || $xml_param eq "1");
+    return undef if ( not $xml_param or $xml_param eq "1" );
 
-    my $serializer = new OpenThought::Serializer({ OP => $self->{OP} });
+    my $serializer = OpenThought::Serializer->new({ OP => $self->{OP} });
 
     my $params = $serializer->deserialize( $xml_param );
 
-    $self->{need_script} = $params->{settings}{need_script} || "";
-
     return ({
-        fields      => $params->{fields},
-        expr        => $params->{expr},
+        fields      => $params->{'fields'},
+        expr        => $params->{'expr'},
         #session     => $self->{OP}->session->fetch(
         #                                    $params->{settings}{session_id} ),
-        session_id  => $params->{settings}{session_id},
-        $params->{settings}{runmode_param} => $params->{settings}{runmode},
+        session_id  => $params->{'settings'}{'session_id'},
+        $params->{'settings'}{'runmode_param'} =>
+                                            $params->{'settings'}{'runmode'},
     });
 }
 
@@ -481,7 +482,7 @@ sub deserialize {
 
  $string = $o->get_application_base( [ $url ] )
 
-Retrieve the base files required for a browser to build an OpenThought
+Retrieve the base files required for a browser to load an OpenThought
 Application
 
 =over 4
@@ -521,20 +522,12 @@ sub get_application_base {
 
     $url ||= $self->{OP}->request->uri;
 
-    my $template = new OpenThought::Template( $self->{OP}, $url );
+    my $template = OpenThought::Template->new( $self->{OP}, $url );
     $template->retrieve_template();
     $template->insert_parameters();
 
     return $template->return_template();
 }
-
-### The below code shouldn't be needed anymore
-# As we go out of scope, we need to be sure to call the cleanup handler of $OP,
-# otherwise the next person to connect may end up with all of the headers and
-# parameters sent ot this instance (yes, this was learned the hard way :-)
-#sub DESTROY {
-#    $OP->cleanup;
-#}
 
 
 1;
@@ -573,7 +566,7 @@ B<Populating and Selecting Select List HTML Elements>
                                    ];
 
 This will set the text of a select box to the left column above, and the value
-of that same select box to the right column.
+of that text to the right column.
 
 In the case that you don't have two columns worth of data you wish to use, you
 can also do:
@@ -587,6 +580,18 @@ can also do:
 This makes both the text and value of the selectbox identical, and requires
 sending less data to the browser (which, of course, saves bandwidth).
 
+The above array of arrays will erase the current contents of the select list
+with the data in the array.  To add a single line to the end of the select
+list, you can use the following:
+
+ $field_data->{'selectbox_name'} = [ "Example 1", "value_one" ];
+
+And you can also use:
+
+ $field_data->{'selectbox_name'} = [ "Example 1" ];
+
+This will set both the text and value of the entry to "Example 1".
+
 Also, if autoclear is set to false (not the default), you can use the following
 to manually clear the contents of a select list:
 
@@ -597,8 +602,11 @@ select list a single string like so:
 
  $field->{'selectbox_name'} = "optionvalue";
 
-The option 'optionvalue' represents the value assigned to that particular
-option in the select list.
+Which ever item in the select list has the value C<optionvalue> will become
+highlighted.
+
+For more information on how to add data to a select box without erasing the
+current contents, be sure to check out the C<autoclear> setting.
 
 B<Selecting Checkbox HTML Elements>
 
@@ -629,15 +637,17 @@ B<Selecting Radio Button HTML Elements>
 
 radiobtn_value is the value in the "value=" tag of the radio button.
 
-Radio buttons can only be selected, they cannot be unselected.
+Radio buttons can only be selected, they cannot be directly unselected.  The
+only way to unselect a radio button is to select a different radio button in
+that group.
 
 B<Updating Existing HTML Code>
 
- $html_data->{'id_tagname'} = "New HTML Code";
+ $html_data->{'id_tagname'} = "<h2>New HTML Code</h2>";
 
-This inserts the text "New HTML Code" inside the tag with the id attribute
-labeled 'id_tagname'.  This replaces and text or code that may have originally
-existed within that tag.
+This inserts the code "<h2>New HTML Code</h2>" inside the tag with the id
+attribute labeled 'id_tagname'.  This replaces any text or code that may have
+originally existed within that tag.
 
 Unlike updating form data, updating HTML currently only works in browsers which
 support the 'innerHTML' method.  That includes IE 5.x, Netscape 6.x, and
@@ -667,7 +677,7 @@ param1 and param2 as arguments to that function:
 You can send any JavaScript you want, but make sure it's properly formated
 code.  OpenThought does not validate whether or not your JavaScript syntax is
 correct, the browser will be your judge!  If something isn't working, pull up
-your browsers JavaScript console, it may provide you with some insight as to
+your browser's JavaScript console, it may provide you with some insight as to
 what isn't working properly.  You do not need to include script tags.
 
 B<Loading a New Page>
@@ -691,8 +701,8 @@ link.  See the 'FetchHtml()' function in 'Sending Data to the Server' below.
 B<Using DBI>
 
 You can send the results of a database search directly to the browser, and have
-the data from the results put into the respective fields.  You only need one
-thing in order for this to work -- the field names in your database just need
+the data from the results put into their respective fields.  You only need one
+thing in order for this to work -- the field names in your database need
 to match your field names in the HTML.  For example:
 
  my $sql = "SELECT name, address, phone, age, married " .
@@ -705,8 +715,8 @@ to match your field names in the HTML.  For example:
 
 In this case, lets say we have 'name', 'address', 'phone', and 'age' as
 text fields in our HTML, and 'married' is a checkbox.  As soon as we send
-$field_data to the browser, these fields will all be filled in with the
-appropriate data.
+$field_data to the browser, these fields (which must exist) will all be filled
+in with the appropriate data.
 
 This also works for select lists:
 
@@ -715,7 +725,7 @@ This also works for select lists:
  my $sth = $dbh->prepare($sql);
  $sth->execute;
 
- $field_data->{people} = $sth->fetchall_arrayref;
+ $field_data->{'people'} = $sth->fetchall_arrayref;
 
 This selects the name and social security number from everyone in the table,
 and will allow us to use it to populate a select list named 'people'.
@@ -729,14 +739,14 @@ allow you to cash in on an event, and you can take advantage of them to send
 data to the server at that time.
 
 The two JavaScript functions available to you for communicating with the server
-are B<CallUrl()> and B<FetchHtml()>.  Their usage and parameters is identical,
+are B<CallUrl()> and B<FetchHtml()>.  Their usage and parameters are identical,
 but they perform very different functions.  B<CallUrl()> sends data in the
 background to the server, and the server can respond in the background with
 it's own packet.  This function does not make the page reload.  The function
 B<FetchHtml>, however, does reload the page.  It's sole purpose is to fetch
-HTML content for your content screen, and replaces your existing content with
-the content it is given.  This is a fancy way of saying it just loads a new
-page.
+new HTML content for your content screen, replacing your existing content
+with the content it is given.  This is a fancy way of saying it just loads a
+new page.
 
 The following are some examples of how you might use these two functions.  In
 any of the following situations, the two functions are interchangable.  It all
@@ -744,7 +754,7 @@ just depends on what you want to happen.
 
 B<Button Events>
 
- <input type=button name=search value='Click me!'
+ <input type="button" name="search" value="Click me!"
         onClick="parent.CallUrl('/OpenThought/servercode.pl',
                                 'field1', 'field2', 'foo=bar');
 
@@ -785,7 +795,7 @@ to /OpenThought/servercode.pl.
 
 Instead of building all OpenThought's functionality into the core OpenThought
 modules, non-core functionality was split off into a reusable component called
-OpenPlugin.  OpenPlugin is a plugin manager which may be used in any web
+L<OpenPlugin>.  OpenPlugin is a plugin manager which may be used in any web
 application, including OpenThought.  The list of plugins if offers is
 currently:
 
@@ -822,8 +832,8 @@ currently:
 =head2 OpenPlugin Usage
 
 Here you will see methods of how to use OpenPlugin within OpenThought.  For
-more information on OpenPlugin, please see the OpenPlugin documentation
-included with the OpenPlugin distribution.
+more information on OpenPlugin, please see the L<OpenPlugin
+documentation|OpenPlugin> included with the OpenPlugin distribution.
 
 =over 4
 
@@ -851,13 +861,13 @@ false otherwise.
 If you wish to use a cache:
 
  $OP->cache->save( \%cache_data, {
-                         id      => "Name for this cache entry",
+                         id      => "Unique name for this cache entry",
                          expires => "+3h",
                  });
 
 And then later, to retrieve the cache:
 
- my $cache = $OP->cache->fetch( "Name for this cache entry" );
+ my $cache = $OP->cache->fetch( "Unique name for this cache entry" );
 
 $cache will be undef if there is no valid cache data for the id being given.
 
@@ -876,7 +886,7 @@ To retrieve the cookies from the client request:
 
 =item Datasource
 
-After defining your datasource in the OpenThought Config file, you can access
+After defining your datasource in the OpenThought config file, you can access
 it via the OpenPlugin datasource interface.
 
  $dbh = eval { $OP->datasource->connect( "datasource_name" ); };
@@ -1586,8 +1596,11 @@ Eric Andreychek (eric at openthought.net)
 
 =head1 COPYRIGHT
 
-The OpenThought Application Environment is Copyright (c) 2000-2002 by Eric
+The OpenThought Application Environment is Copyright (c) 2000-2003 by Eric
 Andreychek.
+
+The OpenThought Application Environment is licensed under the GNU Public
+License (GPL).
 
 =head1 BUGS
 

@@ -1,14 +1,14 @@
-# This file is Copyright (c) 2000-2002 Eric Andreychek.  All rights reserved.
+# This file is Copyright (c) 2000-2003 Eric Andreychek.  All rights reserved.
 # For distribution terms, please see the included LICENSE file.
 #
-# $Id: Serializer.pm,v 1.27 2002/09/17 17:33:53 andreychek Exp $
+# $Id: Serializer.pm,v 1.31 2003/04/04 03:18:04 andreychek Exp $
 #
 
 package OpenThought::Serializer;
 
 use strict;
 
-$OpenThought::Serializer::VERSION = sprintf("%d.%02d", q$Revision: 1.27 $ =~ /(\d+)\.(\d+)/);
+$OpenThought::Serializer::VERSION = sprintf("%d.%02d", q$Revision: 1.31 $ =~ /(\d+)\.(\d+)/);
 
 # Defines the names, types, and default order of all the possible options and
 # settings for the serialize and settings functions
@@ -45,7 +45,6 @@ sub new {
     my $class = ref( $this ) || $this;
 
     my $self = $params;
-    $self->{need_script} = 1;
 
     bless ( $self, $class );
 
@@ -55,12 +54,13 @@ sub new {
 # Parses parameters, sends them off to be serialized
 sub params {
     my ( $self, $params ) = @_;
+    my $OP = $self->{OP};
 
     foreach my $param ( keys %{ $params } ) {
 
         # Verify the parameter was not blank
         if( $params->{$param} eq "" ) {
-            $self->{OP}->log->log(0, "Parameter ($param) is blank!");
+            $OP->log->warn("Parameter [$param] is blank!");
             next;
         }
 
@@ -79,20 +79,20 @@ sub params {
 
             # This is odd, the type of this parameter isn't valid
             else {
-                $self->{OP}->log->log(0, "Parameter ($param) has no valid type!");
+                $OP->log->warn("Parameter [$param] has no valid type!");
             }
         }
 
         # If the parameter is not valid, display an error
         else {
-            $self->{OP}->log->log(0, "Parameter ($param) does not exist!");
+            $OP->log->warn("Parameter [$param] does not exist!");
         }
     }
 }
 
 # Display, in the proper order, the serialized options/settings
 sub output {
-    my ( $self ) = @_;
+    my $self = shift;
 
     my ( $save, $serialized_data, $restore );
     $save = $serialized_data = $restore = "";
@@ -103,15 +103,15 @@ sub output {
     # Loop through all the possible parameters, in order
     foreach my $param ( @{ $order } ) {
 
-        # If this current parameter is one we were sent by the user
+        # Only do something here if we were just given a value for this
+        # parameter by the user
         if( exists $self->{params}{$param} ) {
 
-            # If it's an option..
+            # Options get serialized before settings
             if( $PARAMS->{$param}{type} eq "option" ) {
                 $serialized_data .= $self->{params}{$param};
             }
 
-            # If it's a setting..
             elsif( $PARAMS->{$param}{type} eq "setting" ) {
 
                 # Save/restore the current settings if it's only a temporary
@@ -127,18 +127,12 @@ sub output {
         }
     }
 
-    if( $self->{need_script} ) {
-        return $self->add_tags( "${save}${serialized_data}${restore}" );
-    }
-    else {
-        return "$save$serialized_data$restore";
-    }
+    # Hands JavaScript code to the browser.  The browser processes the data
+    # automatically as we hand it over -- as far as the browser is concerned,
+    # it is simply loading a new page now (but in the hidden frame).
+    return $self->add_tags( "${save}${serialized_data}${restore}" );
 
 }
-
-# Hands a "packet" to the browser.  The browser processes the data
-# automatically as we hand it over -- as far as the browser is concerned, it is
-# simply loading a new page now (but in the hidden frame).
 
 # The user has html they would like displayed in place of existing html
 sub html {
@@ -179,7 +173,9 @@ sub focus {
 sub javascript {
     my ( $self, $javascript_code ) = @_;
 
-    $self->{params}{javascript} = "parent.frames[0].$javascript_code";
+    #$self->{params}{javascript} = "parent.frames[0].$javascript_code";
+    $self->{params}{javascript} =
+        "with (parent.contentFrame) { $javascript_code }";
 }
 
 # Load a new document in the content frame, but keep the base files
@@ -235,7 +231,7 @@ sub as_javascript {
 
         # In the case of a simple x=y assignment, do the following.  This is
         # used for text, password, textbox, and uniquely named checkboxes
-        if(!ref $val) {
+        if( not ref $val) {
             $val = escape_javascript( $val );
             $val = "" unless defined ( $val );
             $packet .= qq{Packet["$key"]="$val";};
@@ -243,12 +239,12 @@ sub as_javascript {
 
         # In the case of a radio button, or several checkboxes with the same
         # name
-        elsif ((!ref $val->[0]) && (ref $val eq "ARRAY")) {
+        elsif ( not ref $val->[0] and ref $val eq "ARRAY" ) {
 
             # If we are sent something like:
             #   $field->{'selectbox_name'} = [ "" ];
             # That means we wish to clear the selectbox
-            unless ( defined($val->[0]) && ($val->[0] ne "")) {
+            unless ( defined $val->[0] and $val->[0] ne "" ) {
 
                 $packet .= qq{$key=new Array;};
                 $packet .= qq{$key\[0\]="";};
@@ -285,22 +281,22 @@ sub as_javascript {
         }
     }
 
-return $packet;
+    return $packet;
 }
 
 # Deserialize the input we were sent from the browser
 sub deserialize {
-    my ( $self, $o_param ) = @_;
+    my ( $self, $xml ) = @_;
 
     # Deserialize the packet we were sent
-    return OpenThought::XML2Hash::xml2hash( $o_param );
+    return OpenThought::XML2Hash::xml2hash( $xml );
 }
 
 # Adds the appropriate script tags to JavaScript code
 sub add_tags {
     my ( $self, $code ) = @_;
 
-return "<script>${code}</script>";
+    return "<script>${code}</script>";
 }
 
 sub escape_javascript {
@@ -314,7 +310,7 @@ sub escape_javascript {
     $code =~ s/\t/\\t/g;
     $code =~ s/\"/\\"/g;
 
-return $code;
+    return $code;
 }
 
 1;

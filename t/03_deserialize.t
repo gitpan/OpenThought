@@ -1,12 +1,14 @@
 #!/usr/bin/perl
 
-# $Id: 03_deserialize.t,v 1.1 2002/07/07 17:49:55 andreychek Exp $
+# $Id: 03_deserialize.t,v 1.2 2002/12/20 21:12:44 andreychek Exp $
 
 use strict;
 use Test::More  tests => 4;
 use lib ".";
 use lib "./t";
 use OpenThoughtTests();
+
+$OpenThought::Prefix = "./openthought";
 
 my $o  = OpenThought->new({ OpenThoughtData => "openthought/" });
 

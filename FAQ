@@ -37,6 +37,31 @@ language with a SOAP implementation to utilize the OpenThought Framework.
 Currently, no such drivers have been written, but several are planned.
 
 
+Q. That sounds kinda neat.  How does it work?
+
+A. There are components both on the server, and within the browser, that allow
+the whole process to work.  However, the part you probably wanted to know is
+that OpenThought uses a hidden frame to transfer data to and from the server.
+
+
+Q. This is hugely cool!  But my back button doesn't always work.  Why is that?
+
+A. Currently, there are some cases where the back button may not do what one
+would expect.  The back button is indeed working as the browser thinks it
+should, just not as most users would initially expect :-)
+
+The reason for this is in the usage of the hidden frame, as mentioned in the
+previous question.  Any time you exchange data with the server, the browser
+thinks you have loaded a new page.  So pressing the back button doesn't
+necessarily go back one page, it goes back to the last communication with the
+server.
+
+I currently don't have a way around this.  On applications I build, I provide
+buttons that one can use instead of the browsers back button.  If it really
+bothers you, it's pretty simple to open a browser window for the user, which
+contains no back button.  But I'm certainly open to suggestions :-)
+
+
 Q. I followed all the instructions, but when I try to restart Apache, it
 silently fails!
 

@@ -12,7 +12,7 @@ Section I
 1. Install Perl.  Versions 5.005_03 and greater are known to work.
 
 
-2. Install Apache 1.3.x, and if desired, mod_perl 1.2x
+2. Install Apache 1.3.x, and if desired, mod_perl 1.2x or 1.9x
 
 Both of these come with many distributions these days.  However, if you have
 any trouble at all with your Apache / mod_perl installation, including
@@ -20,44 +20,7 @@ segfaults, please read Appendix A, which describes a known good method of
 installing them.
 
 
-3. Install XML2Hash         (Not on CPAN yet, can be found at openthought.net)
-
- tar zxvf OpenThought-XML2Hash-x.xx.tar.gz
- cd OpenThought-XML2Hash-x.xx
- su
- perl Makefile.pl
- make
- make test
- make install
-
-The installer will check pre-requisite modules and automatically install the
-proper versions of anything before continuing.
-
-If you don't have permissions to install modules on the system, see Appendix B
-below for simple instructions on installing modules locally, such as in your
-home directory.
-
-
-4. Install OpenPlugin       (Not on CPAN yet, can be found at openthought.net)
-
- tar zxvf OpenPlugin-x.xx.tar.gz
- cd OpenPlugin-x.xx
- su
- perl Makefile.pl
- make
- make test
- make install
-
-The installer will ask which drivers you want, check pre-requisite modules,
-and then automatically install the proper versions of everything before
-continuing.  It will also prompt you for where to install the config files.
-
-If you don't have permissions to install modules on the system, see Appendix B
-below for simple instructions on installing modules locally, such as in your
-home directory.
-
-
-5. Install OpenThought
+3. Install OpenThought
 
  tar zxvf OpenThought-x.xx.tar.gz
  cd OpenThought-x.xx
@@ -68,15 +31,16 @@ home directory.
  make install
 
 The installer will check pre-requisite modules and automatically install the
-proper versions of anything before continuing.  It will also prompt you for
-where to install some data files.
+proper versions of anything before continuing.  When it begins the installation
+of OpenPlugin, you will be prompted to choose which drivers you wish to
+install.  You will also be prompted to install some data files.
 
 If you don't have permissions to install modules on the system, see Appendix B
 below for simple instructions on installing modules locally, such as in your
 home directory.
 
 
-6. Edit the OpenPlugin/OpenThought Config files and tell them your correct paths
+4. Edit the OpenPlugin/OpenThought Config files and tell them your correct paths
 
  vi /usr/local/etc/OpenPlugin.conf
  vi /usr/local/etc/OpenThought.conf
@@ -84,14 +48,15 @@ home directory.
 
 Choose your own adventure!
 
-For a MOD_PERL INSTALLATION, goto to section IIa
-For a STANDARD CGI INSTALLATION, goto to section IIb
+For a MOD_PERL 1.x INSTALLATION, goto to section IIa
+For a MOD_PERL 1.99/2.x INSTALLATION, goto to section IIb
+For a STANDARD CGI INSTALLATION, goto to section IIc
 
 
-Section IIa (mod_perl users)
-----------------------------
+Section IIa (mod_perl 1.x users)
+--------------------------------
 
-7. Edit your OpenThoughtRoot and Prefix settings
+5. Edit your OpenThoughtRoot and Prefix settings
 
  vi /usr/local/etc/OpenThought-httpd.conf
 
@@ -99,12 +64,77 @@ Substitute "/usr/local/" with the directory you specified as the
 Prefix directory.
 
 
-8. Add the following line to the end of your httpd.conf:
+6. Add the following line to the end of your httpd.conf:
 
  Include /usr/local/etc/OpenThought-httpd.conf
 
 
-9. Restart Apache
+7. Restart Apache
+
+ /etc/rc.d/init.d/httpd restart
+
+
+8. Try the OpenThought demo app.  Browse to:
+
+ http://127.0.0.1/OpenThought/demo_app/demo.pl        (if on your local machine)
+
+      -- or --
+
+ http://www.mydomain.com/OpenThought/demo_app/demo.pl   (if on a remote machine)
+
+
+Under mod_perl, the url path of /OpenThought/ is automatically aliased for you
+to point to your OpenThoughtRoot.  So even if your OpenThoughtRoot is not
+physically in the dir /OpenThought, the above url will still take you there.
+
+You may wish to consider running two versions of Apache, one with mod_perl
+support, the other without.  See Appendix C below for instructions on using
+that setup.
+
+(continue to Section III)
+
+
+Section IIb (mod_perl 1.99/2.x users)
+-------------------------------------
+
+OpenThought does work fine under mod_perl 1.99/2.x.  However, an
+Apache/mod_perl config file needs to be created in order to do so.  The one
+included which works with mod_perl 1.x does not work with mod_perl 1.99/2.x.
+
+So far, no such config file for 1.99/2.x is included with OpenThought.  If
+everything goes as planned, one will be available in the next release.  Sorry
+for the inconvienence.
+
+5. Change your OpenPlugin drivers
+
+ vi /usr/local/etc/OpenPlugin.conf
+
+ Locate the sections for the following plugins:
+   request, param, httpheader, upload, and cookie
+
+ For each plugin, change the driver from 'Apache' to 'Apache2'
+
+
+6. Create a config for Apache 2 / mod_perl 1.99/2.x
+
+As mentioned above, a config file for Apache 2 needs to be created here.  It
+simply needs to enable mod_perl, and preload all the OpenThought and OpenPlugin
+modules.  An example of how it worked with Apache 1.x can be seen by looking at
+Openthought-httpd.conf.  One should be included with this distribution in the
+next release.
+
+
+7. Uncomment the MOD_PERL 1.99/2.x section of the demo
+
+ The demo contains three sections, one for mod_perl 1.x users, one for mod_perl
+ 1.99/2.x users, and one for CGI users.  Using mod_perl 1.x is the default.
+
+ Edit the demo.pl file you installed into the OpenThoughtRoot directory, and
+ uncomment the lines in the section "MOD_PERL 1.99/2.x INSTALL".  Then, just
+ comment out the lines in "MOD_PERL INSTALL".
+
+
+8. Restart Apache
 
  /etc/rc.d/init.d/httpd restart
 
@@ -129,10 +159,10 @@ that setup.
 (continue to Section III)
 
 
-Section IIb (CGI users)
+Section IIc (CGI users)
 -----------------------
 
-7. Change your OpenPlugin drivers
+5. Change your OpenPlugin drivers
 
  vi /usr/local/etc/OpenPlugin.conf
 
@@ -141,17 +171,17 @@ Section IIb (CGI users)
 
  For each plugin, change the driver from 'Apache' to 'CGI'
 
-8. Uncomment the CGI section of the demo
+6. Uncomment the CGI section of the demo
 
- The demo contains two sections, one for mod_perl users, and one for CGI users.
- Using mod_perl is the default.
+ The demo contains three sections, one for mod_perl 1.x users, one for mod_perl
+ 1.99/2.x users, and one for CGI users.  Using mod_perl 1.x is the default.
 
  Edit the demo.pl file you installed into the OpenThoughtRoot directory, and
  uncomment the lines in the section "CGI INSTALL".  Then, just comment out the
- lines in "MOD_PERL INSTALL".
+ lines in "MOD_PERL 1.x INSTALL".
 
 
-9. Try the OpenThought demo app.  Browse to:
+7. Try the OpenThought demo app.  Browse to:
 
  http://127.0.0.1/cgi-bin/demo_app/demo.pl        (if on your local machine)
 
@@ -170,10 +200,14 @@ You're Done!
 You can use 'perldoc OpenThought' and 'perldoc OpenPlugin' for instructions on
 creating applications.
 
+Also be sure to check out the demo application to see an example of how things
+work.
+
+Have fun :-)
 
 
-Appendix A. -- Installing Apache and Mod_Perl
----------------------------------------------
+Appendix A. -- Installing Apache and Mod_Perl 1.x
+-------------------------------------------------
 
 Apendix A will describe how to install both Apache and mod_perl from source.
 
@@ -233,8 +267,8 @@ Appendix C. -- Running OpenThought With Apache on a Non-Standard Port
 
 For administrators of mod_perl, there are excellent reasons for wanting to run
 your mod_perl enabled Apache server on a non-standard port.  Perhaps on port 80
-you'll have a version of Apache to handle non-Perl / non-CGI requests, and then
-on port 81 you'd have a version of Apache set to handle all mod_perl requests.
+you'll have a version of Apache to handle non-Perl requests, and then on port
+81 you'd have a version of Apache set to handle all mod_perl requests.
 
 That is an excellent way to setup your webserver, but one thing you don't want
 to do is start telling users to go to url's like:
@@ -251,11 +285,13 @@ a document under a particular directory, that it needs to hand off that request
 to the Apache running on port 81.  You can do that easily, by editing the
 httpd.conf associated with the Apache running on port 80.
 
-In your httpd.conf for your port 80 Apache, make sure the following two lines
+In your httpd.conf for your port 80 Apache, make sure the following four lines
 exist, and are uncommented:
 
+  LoadModule rewrite_module     modules/mod_rewrite.so
   LoadModule proxy_module       modules/libproxy.so
 
+  AddModule mod_rewrite.c
   AddModule mod_proxy.c
 
 Then, perhaps at the end of the config file, add these lines:

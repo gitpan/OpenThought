@@ -5,6 +5,49 @@ Key:
 ** An optional feature has been added that is probably worth checking out
 *** This is a new feature that will likely require a change in your code
 
+Changes since 0.63
+------------------
+
+* Radio buttons in some versions of Mozilla weren't working.  Included a fix to
+handle the fact that some versions of Mozilla don't return a value for the
+object.type call when the object is a radio button.
+
+* Fixed an issue where checkboxes in some cirsumstances would always return a
+true value, even if they weren't checked.
+
+* Updated the documentation to make various sections more clear
+
+* Try and handle some errors more gracefully
+
+* Fixed a number of issues that were keeping Konqueror from working.
+
+* Fixed problems with the test suite which would cause it to fail on certain
+systems.
+
+* A variety of code cleanup
+
+* Removed deprecated log() calls
+
+* JavaScript code sent from the server to the browser is now encapsulated
+within a JavaScript "with" to make sure it's executed within the right
+namespace (that is, the content frame).  This should be much better than the
+previous method.
+
+** You can now define what values are returned for true and false when a
+checkbox is checked / unchecked.  The default is 1 or 0, but there might be
+reasons to change that to something like "true" and "false", or something
+similar.
+
+** The application title can now be set.  Simply set the title in the HTML you
+create (which is loaded into the content frame), OpenThought will use that to
+set the title of the root application.
+
+** Passing in a reference to an array with one or two elements to a select list
+now adds a single line to the end of that select list.  Previously, you needed
+to pass in an array of arrays, and it would always erase the current contents
+unless you set the autoclear parameter to 0.
+
+
 Changes since 0.62
 ------------------
 

@@ -35,7 +35,7 @@ use ExtUtils::AutoInstall (
       'File::Spec'            => '0.82',
       'HTML::Template'        => '2.2',
       'OpenThought::XML2Hash' => '0.56',
-      'OpenPlugin'            => '0.08',
+      'OpenPlugin'            => '0.10',
    ],
 );
 

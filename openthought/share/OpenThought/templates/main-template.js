@@ -94,25 +94,26 @@ function Send(url, commFrame, XMLPacket) {
     // Update the message on the status bar
     window.status = fetchStart;
 
-    var date = new Date();
-    bench += "Ser: " + date.getTime() + "\n";
+    //var date = new Date();
+    //bench += "Ser: " + date.getTime() + "\n";
 
     // Now that the XML packet is created, reset the runmode
     set_runmode('');
 
     // Post request to server via the form in the controlFrame
-    var date = new Date();
-    bench += "Sent: " + date.getTime() + "\n";
+    //var date = new Date();
+    //bench += "Sent: " + date.getTime() + "\n";
 
     parent.frames[commFrame].location.href = url + "?OpenThought=" + XMLPacket;
+    parent.document.title = parent.contentFrame.document.title;
 
 }
 
 // Called by the CommFrame when data has arrived
 function OpenThoughtUpdate(Content) {
 
-    var date = new Date();
-    bench += "Recv: " + date.getTime() + "\n";
+    //var date = new Date();
+    //bench += "Recv: " + date.getTime() + "\n";
 
     // Update the message on the status bar
     window.status = fetchDisplay;
@@ -195,7 +196,10 @@ function FillSelect(element, data)
     else {
         // Clear any current OPTIONS from the SELECT
         //element.options.length = 0;
-        if((autoClear) || ((data.length == 1) && (data[0] == ""))) {
+        if(((autoClear) &&
+            ((typeof data[0] != "string") && (data[0] != "" ))) ||
+            ((typeof data[0] == "string") && (data[0] == ""))) {
+
             while (element.options.length) element.options[0] = null;
             if((data.length == 1) && (data[0] == "")) {
                 return;
@@ -205,11 +209,26 @@ function FillSelect(element, data)
         // For each record...
         for (var i=0; i < data.length; i++)
         {
-            var text = data[i][0];
-            var value = data[i][1];
 
-            if (data[i][1] == "") {
-                value = text;
+            var text;
+            var value;
+
+            if (typeof data[0] == "string") {
+                text  = data[0];
+                value = data[1];
+
+                if (data[1] == "") {
+                    value = text;
+                }
+                i++;
+            }
+            else {
+                text = data[i][0];
+                value = data[i][1];
+
+                if (data[i][1] == "") {
+                    value = text;
+                }
             }
 
             // Text cam't be null
@@ -265,16 +284,16 @@ function FillRadio(element, value)
 // Take the data we received, and put it in it's appropriate field
 function FillFields(Content)
 {
-    for (fieldName in Content)
+    for (var fieldName in Content)
     {
         var object = FindObject(fieldName);
 
         // This is kinda silly, but radio buttons don't seem to return an
-        // object.name, in some versions of Mozilla
-        //if((!ie4) && (object.type == undefined) && (object.length > 0))
-        //{
-        //    object.type="radio";
-        //}
+        // object.type, in some versions of Mozilla
+        if((!ie4) && (object.type == undefined) && (object.length > 0))
+        {
+            object.type="radio";
+        }
 
         if((object) && ( object.type )) {
             switch (object.type)
@@ -341,6 +360,7 @@ function GenSettingParams()
     var param  = new Object();
 
     param["session_id"] = get_sessionid();
+
     param["need_script"] = 1;
 
     param["runmode_param"] = get_runmodeparam();
@@ -382,11 +402,11 @@ function GenFieldParams(elements)
         var object = FindObject(elements[i]);
 
         // This is kinda silly, but radio buttons don't seem to return an
-        // object.name, in some versions of Mozilla
-        //if((!ie4) && (object.type == undefined) && (object.length > 0))
-        //{
-        //    object.type="radio";
-        //}
+        // object.type, in some versions of Mozilla
+        if((!ie4) && (object.type == undefined) && (object.length > 0))
+        {
+            object.type="radio";
+        }
 
         if(( object ) && ( object.type )) {
             switch (object.type)
@@ -463,7 +483,7 @@ function CheckboxValue(element)
     {
         if(element.value == "on")
         {
-            return true;
+            return "<TMPL_VAR NAME=checked_true_value>";
         }
         else
         {
@@ -472,10 +492,9 @@ function CheckboxValue(element)
     }
     else
     {
-        return false;
+        return "<TMPL_VAR NAME=checked_false_value>";
     }
 
-return;
 }
 
 // Figure out which option is selected in our radio button
@@ -489,7 +508,7 @@ function RadioValue(element)
         }
     }
 
-return;
+    return "<TMPL_VAR NAME=checked_false_value>";
 }
 
 // Takes a fieldname as an argument, and gives that field the focus
@@ -511,14 +530,14 @@ function Hash2XML(hash)
     var xml = "<OpenThought>";
 
     // Loop through each child in the hash (fields and expr)
-    for (child in hash) {
+    for (var child in hash) {
 
         xml += "<" + child + ">";
 
         if(typeof(hash[child]) == "object") {
 
             // Now get every child of the children elements (grandchild)
-            for(grandchild in hash[child])
+            for(var grandchild in hash[child])
             {
                 xml += "<" + grandchild + ">";
                 xml += escape_xml(hash[child][grandchild]);

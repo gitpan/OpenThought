@@ -9,7 +9,8 @@
 
     <frame src="<TMPL_VAR NAME=application_url>?OpenThought=1"
            name="contentFrame" scrolling="auto"
-           frameborder="0" marginheight="0" marginwidth="0">
+           frameborder="0" marginheight="0" marginwidth="0"
+           onLoad="parent.document.title = parent.contentFrame.document.title">
 
     <frame src="about:blank" name="commFrame"
            scrolling="no" noresize border="0">
@@ -18,7 +19,7 @@
           <body>
              This is an <a href="openthought.net">OpenThought</a>
              application, and requires frames.  Netscape 4.x+, IE 4.x+,
-             Mozilla 0.8+, Opera 6.x+, and Konqueror 3.x+ are all known to work.
+             Mozilla 0.8+, Opera 6.x+, Konqueror 3.x+ are all known to work.
           </body>
        </noframes>
    </frameset>

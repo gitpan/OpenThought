@@ -14,9 +14,10 @@ sub setup {
     # to us by the browser.  On the right is the subroutine to execute when we
     # receive a particular run mode.
     $self->run_modes(
-            'mode1' => 'init_demo',
-            'mode2' => 'get_os_list',
-            'mode3' => 'get_os_info',
+            'mode1'           => 'init_demo',
+            'mode2'           => 'get_os_list',
+            'mode3'           => 'get_os_info',
+            'session_expired' => 'session_expired',
     );
 
     # The default run mode, this mode is run if we aren't explicitely sent one.
@@ -57,6 +58,34 @@ sub cgiapp_init {
 
 }
 
+# This sub is run immediatly before the run_mode, and is capable of modifying
+# the run_mode if necessary.
+# This should not be called manually, it will be called by CGI::App for us.
+sub cgiapp_prerun {
+    my ( $self, $run_mode ) = @_;
+
+    # Don't execute the next lines of code if we are just loading the app
+    return if ( $self->get_current_runmode eq "mode1" );
+
+    # Verify that the session is valid -- if it is not, change the run mode to
+    # 'session_expired'
+    unless( $self->param('session') ) {
+        $self->prerun_mode('session_expired');
+    }
+}
+
+# Return a javascript popup message about the expired session
+sub session_expired {
+    my $self = shift;
+
+    my $data;
+    my $msg = "Your session has expired!";
+    my $js = qq{alert("$msg");};
+
+    $data->{javascript} = $js;
+    return $self->param( 'OpenThought' )->serialize( $data );
+}
+
 # Our first run mode -- this method initializes the pieces of the demo app
 sub init_demo {
     my $self = shift;
@@ -66,8 +95,17 @@ sub init_demo {
     # loaded, and that it's requesting it's content
     if( $OP->param->get_incoming( 'OpenThought' )) {
 
+        my $template;
         # load_tmpl() uses HTML::Template to load a template document
-        my $template = $self->load_tmpl( 'templates/demo-template.html' );
+
+        # This "if" statement is just to allow us to run under mod_perl 1.x and
+        # 2.x at the same time, mod_perl 2.x doesn't like relative paths
+        if ( $Demo::modperl2_path ) {
+            $template = $self->load_tmpl( "${Demo::modperl2_path}/templates/demo-template.html" );
+        }
+        else {
+            $template = $self->load_tmpl( 'templates/demo-template.html' );
+        }
         return $template->output;
     }
 
