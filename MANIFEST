@@ -7,9 +7,9 @@ MANIFEST.SKIP
 Makefile.PL
 README
 TODO
-demo_app/Demo.pm
-demo_app/demo.pl
-demo_app/templates/demo-template.html
+demo_app/site/lib/Demo.pm
+demo_app/demo/index.pl
+demo_app/site/templates/demo/demo-template.html
 inc/ExtUtils/AutoInstall.pm
 inc/File/NCopy.pm
 inc/Module/Install.pm

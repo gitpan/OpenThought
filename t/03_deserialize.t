@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-# $Id: 03_deserialize.t,v 1.2 2002/12/20 21:12:44 andreychek Exp $
+# $Id: 03_deserialize.t,v 1.3 2003/08/28 20:51:44 andreychek Exp $
 
 use strict;
 use Test::More  tests => 4;

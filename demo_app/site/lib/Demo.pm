@@ -103,16 +103,8 @@ sub init_ui {
     my $template;
 
     # load_tmpl() uses HTML::Template to load a template document
-
-    # This "if" statement is just to allow us to run under mod_perl 1.x and
-    # 2.x at the same time, mod_perl 2.x doesn't like relative paths
-    if ( $Demo::modperl2_path ) {
-        $template = $self->load_tmpl(
-                "${Demo::modperl2_path}/templates/demo-template.html" );
-    }
-    else {
-        $template = $self->load_tmpl('templates/demo-template.html');
-    }
+    $template = $self->load_tmpl(
+            "${Demo::OpenThoughtAppsPath}/templates/demo/demo-template.html");
 
     return $template->output;
 }

@@ -1,4 +1,4 @@
-#line 1 "inc/File/NCopy.pm - /usr/lib/perl5/site_perl/5.6.1/File/NCopy.pm"
+#line 1 "inc/File/NCopy.pm - /usr/lib/perl5/site_perl/5.8.0/File/NCopy.pm"
 package File::NCopy;
 require 5.004; # just because I think you should upgrade :)
 

@@ -1,7 +1,7 @@
 # This file is Copyright (c) 2000-2003 Eric Andreychek.  All rights reserved.
 # For distribution terms, please see the included LICENSE file.
 #
-# $Id: OpenThought.pm,v 1.97 2003/08/26 15:13:58 andreychek Exp $
+# $Id: OpenThought.pm,v 1.99 2003/08/29 00:34:35 andreychek Exp $
 #
 
 package OpenThought;
@@ -97,14 +97,14 @@ one interface, for both LAN and web use.
 
 use strict;
 
-$OpenThought::VERSION="0.70";
+$OpenThought::VERSION="0.71";
 
 # Include the OpenThought core components
 use OpenThought::XML2Hash 0.57 ();
 use OpenThought::Serializer();
 use OpenThought::Template();
 
-use OpenPlugin 0.10 ();
+use OpenPlugin 0.11 ();
 
 
 #/-------------------------------------------------------------------------

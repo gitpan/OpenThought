@@ -1,4 +1,4 @@
-#line 1 "inc/Text/Template.pm - /usr/lib/perl5/site_perl/5.6.1/Text/Template.pm"
+#line 1 "inc/Text/Template.pm - /usr/lib/perl5/site_perl/5.8.0/Text/Template.pm"
 # -*- perl -*-
 # Text::Template.pm
 #

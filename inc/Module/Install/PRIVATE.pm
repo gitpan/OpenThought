@@ -43,7 +43,15 @@ sub config {
 
     chomp $OpenThoughtRoot;
 
-    my $OpenThoughtPrefix = prompt("\n2. Prefix\n\n"                         .
+    my $OpenThoughtApps = prompt("\n\n2. OpenThoughtApps\n\n"                .
+            "Directory, preferably *outside* of both Apache's DocumentRoot\n".
+            "and the OpenThoughtRoot, where you would like OpenThought\n"    .
+            "Application .pm files and templates to reside.\n\n",
+            "/var/www/site");
+
+    chomp $OpenThoughtRoot;
+
+    my $OpenThoughtPrefix = prompt("\n3. Prefix\n\n"                         .
             "Directory prefix under which you would like to store\n"         .
             "OpenThought's data files. This includes the config file,\n"     .
             "some templates, and that sort of thing.\n\n", "/usr/local");
@@ -57,9 +65,14 @@ sub config {
             "Cannot create $OpenThoughtRoot: $!";
     }
 
-    unless ( -d "$OpenThoughtRoot/demo_app" ) {
-        mkdir "$OpenThoughtRoot/demo_app", 0777 or die
-                                "Cannot create '$OpenThoughtRoot/demo_app': $!";
+    unless ( -d "$OpenThoughtRoot/demo" ) {
+        mkdir "$OpenThoughtRoot/demo", 0777 or die
+                                "Cannot create '$OpenThoughtRoot/demo': $!";
+    }
+
+    unless ( -d $OpenThoughtApps ) {
+        mkdir $OpenThoughtApps, 0777 or die
+            "Cannot create $OpenThoughtApps: $!";
     }
 
     unless ( -d $OpenThoughtPrefix ) {
@@ -68,9 +81,34 @@ sub config {
     }
 
    my $file = File::NCopy->new(recursive => 1);
-   $file->copy("demo_app/*", "$OpenThoughtRoot/demo_app") or die
-    "Cannot copy demo application to $OpenThoughtRoot/demo_app: $!";
+   $file->copy("demo_app/demo/*", "$OpenThoughtRoot/demo") or die
+    "Cannot copy demo application to $OpenThoughtRoot/demo: $!";
 
+   my $file = File::NCopy->new(recursive => 1);
+   $file->copy("demo_app/site/*", "$OpenThoughtApps") or die
+    "Cannot copy demo application to $OpenThoughtApps: $!";
+
+   {
+        open FH, ">${OpenThoughtRoot}/demo/index.pl" or die
+                "Cannot open config file [index.pl]: $!";
+
+        my $template = Text::Template->new(
+            SOURCE => "demo_app/demo/index.pl" )
+            or die "Couldn't construct template: $Text::Template::ERROR";
+
+        my $result = $template->fill_in(
+                            HASH   => {
+                                OpenThoughtPrefix => \$OpenThoughtPrefix,
+                                OpenThoughtApps   => \$OpenThoughtApps,
+                            },
+                            OUTPUT => \*FH, );
+
+        unless ( defined $result ) {
+            die "Couldn't fill in template: $Text::Template::ERROR";
+        }
+
+        close FH;
+   }
    print "\n";
 
    my @config_files = (     "OpenThought.conf",

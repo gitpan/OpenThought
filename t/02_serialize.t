@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-# $Id: 02_serialize.t,v 1.5 2003/05/13 20:40:13 andreychek Exp $
+# $Id: 02_serialize.t,v 1.6 2003/08/28 20:51:44 andreychek Exp $
 
 use strict;
 use Test::More  tests => 8;

@@ -69,11 +69,11 @@ Prefix directory during installation.
 
 6. Try the OpenThought demo app.  Browse to:
 
- http://127.0.0.1/OpenThought/demo_app/demo.pl        (if on your local machine)
+ http://127.0.0.1/OpenThought/demo_app/index.pl       (if on your local machine)
 
       -- or --
 
- http://www.mydomain.com/OpenThought/demo_app/demo.pl   (if on a remote machine)
+ http://www.mydomain.com/OpenThought/demo_app/index.pl  (if on a remote machine)
 
 
 Under mod_perl, the url path of /OpenThought/ is automatically aliased for you
@@ -113,9 +113,10 @@ Prefix directory during installation.
  The demo contains three sections, one for mod_perl 1.x users, one for mod_perl
  1.99/2.x users, and one for CGI users.  Using mod_perl 1.x is the default.
 
- Edit the demo.pl file you installed into the OpenThoughtRoot directory, and
- uncomment the lines in the section "MOD_PERL 1.99/2.x INSTALL".  Then, just
- comment out the lines in "MOD_PERL INSTALL".
+ Edit the index.pl file you installed into the OpenThoughtRoot directory
+ (/var/www/OpenThought/demo by default), and uncomment the lines in the section
+ "MOD_PERL 1.99/2.x INSTALL".  Then, just comment out the lines in the section
+ labeled "MOD_PERL INSTALL".
 
 
 9. Restart Apache
@@ -125,11 +126,11 @@ Prefix directory during installation.
 
 10. Try the OpenThought demo app.  Browse to:
 
- http://127.0.0.1/OpenThought/demo_app/demo.pl        (if on your local machine)
+ http://127.0.0.1/OpenThought/demo_app/index.pl       (if on your local machine)
 
       -- or --
 
- http://www.mydomain.com/OpenThought/demo_app/demo.pl   (if on a remote machine)
+ http://www.mydomain.com/OpenThought/demo_app/index.pl  (if on a remote machine)
 
 
 Under mod_perl, the url path of /OpenThought/ is automatically aliased for you
@@ -160,18 +161,19 @@ Section IIc (CGI users)
  The demo contains three sections, one for mod_perl 1.x users, one for mod_perl
  1.99/2.x users, and one for CGI users.  Using mod_perl 1.x is the default.
 
- Edit the demo.pl file you installed into the OpenThoughtRoot directory, and
- uncomment the lines in the section "CGI INSTALL".  Then, just comment out the
- lines in "MOD_PERL 1.x INSTALL".
+ Edit the index.pl file you installed into the OpenThoughtRoot directory
+ (/var/www/OpenThought/demo by default), and uncomment the lines in the section
+ "CGI INSTALL".  Then, just comment out the lines in the section
+ "MOD_PERL 1.x INSTALL".
 
 
 7. Try the OpenThought demo app.  Browse to:
 
- http://127.0.0.1/cgi-bin/demo_app/demo.pl        (if on your local machine)
+ http://127.0.0.1/cgi-bin/demo_app/index.pl        (if on your local machine)
 
       -- or --
 
- http://www.mydomain.com/cgi-bin/demo_app/demo.pl   (if on a remote machine)
+ http://www.mydomain.com/cgi-bin/demo_app/index.pl   (if on a remote machine)
 
  Substitute "cgi-bin" for whatever path you installed the demo into.
 

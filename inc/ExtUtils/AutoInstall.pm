@@ -1,4 +1,4 @@
-#line 1 "inc/ExtUtils/AutoInstall.pm - /usr/lib/perl5/site_perl/5.6.1/ExtUtils/AutoInstall.pm"
+#line 1 "inc/ExtUtils/AutoInstall.pm - /usr/lib/perl5/site_perl/5.8.0/ExtUtils/AutoInstall.pm"
 # $File: //member/autrijus/ExtUtils-AutoInstall/AutoInstall.pm $ 
 # $Revision: #46 $ $Change: 5867 $ $DateTime: 2003/05/15 18:26:55 $
 
@@ -629,31 +629,4 @@ installdeps ::
 
 __END__
 
-=head1 SEE ALSO
-
-L<perlmodlib>, L<ExtUtils::MakeMaker>, L<Sort::Versions>, L<CPAN>,
-L<CPANPLUS>, L<Module::Install>
-
-=head1 ACKNOWLEDGEMENTS
-
-The test script included in the B<ExtUtils::AutoInstall> distribution
-contains code adapted from Michael Schwern's B<Test::More> under the
-I<Perl License>.  Please consult to F<t/AutoInstall.t> for details.
-
-See the F<AUTHORS> file in this module's source distribution for the
-list of contributors.
-
-=head1 AUTHORS
-
-Autrijus Tang E<lt>autrijus@autrijus.orgE<gt>
-
-=head1 COPYRIGHT
-
-Copyright 2001, 2002, 2003 by Autrijus Tang E<lt>autrijus@autrijus.orgE<gt>.
-
-This program is free software; you can redistribute it and/or
-modify it under the same terms as Perl itself.
-
-See L<http://www.perl.com/perl/misc/Artistic.html>
-
-=cut
+#line 910

@@ -5,6 +5,16 @@ Key:
 ** An optional feature has been added that is probably worth checking out
 *** This is a new feature that will likely require a change in your code
 
+Changes since 0.70
+------------------
+
+* Made a correction to OpenThought-httpd-mod_perl2.conf which caused browsers
+to only see a blank screen when running under mod_perl 1.9x/2.x.
+
+* Restructured the demo app, modules and templates are no longer in a directory
+reachable by a browser.
+
+
 Changes since 0.64
 ------------------
 

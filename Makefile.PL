@@ -20,7 +20,7 @@ requires(
       'File::Spec'            => '0.82',
       'HTML::Template'        => '2.2',
       'OpenThought::XML2Hash' => '0.57',
-      'OpenPlugin'            => '0.10',
+      'OpenPlugin'            => '0.11',
 );
 
 
