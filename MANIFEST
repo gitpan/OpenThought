@@ -2,7 +2,7 @@ COPYING
 Changelog
 FAQ
 INSTALL
-MANIFEST
+MANIFEST			This list of files
 MANIFEST.SKIP
 Makefile.PL
 README
@@ -12,10 +12,24 @@ demo_app/demo.pl
 demo_app/templates/demo-template.html
 inc/ExtUtils/AutoInstall.pm
 inc/File/NCopy.pm
+inc/Module/Install.pm
+inc/Module/Install/AutoInstall.pm
+inc/Module/Install/Base.pm
+inc/Module/Install/Can.pm
+inc/Module/Install/Fetch.pm
+inc/Module/Install/Include.pm
+inc/Module/Install/Makefile.pm
+inc/Module/Install/Metadata.pm
+inc/Module/Install/PRIVATE.pm
+inc/Module/Install/Win32.pm
+inc/Text/Template.pm
 lib/OpenThought.pm
 lib/OpenThought/Serializer.pm
 lib/OpenThought/Template.pm
-openthought/etc/OpenThought-httpd.conf
+openthought/etc/OpenThought-httpd-mod_perl1.conf
+openthought/etc/OpenThought-httpd-mod_perl2.conf
+openthought/etc/OpenThought-startup-mod_perl1.pl
+openthought/etc/OpenThought-startup-mod_perl2.pl
 openthought/etc/OpenThought.conf
 openthought/share/OpenThought/templates/index-template.html
 openthought/share/OpenThought/templates/main-template.js

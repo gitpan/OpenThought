@@ -12,7 +12,7 @@ Section I
 1. Install Perl.  Versions 5.005_03 and greater are known to work.
 
 
-2. Install Apache 1.3.x, and if desired, mod_perl 1.2x or 1.9x
+2. Install Apache, and if desired, mod_perl (mod_perl is recommended)
 
 Both of these come with many distributions these days.  However, if you have
 any trouble at all with your Apache / mod_perl installation, including
@@ -35,46 +35,39 @@ proper versions of anything before continuing.  When it begins the installation
 of OpenPlugin, you will be prompted to choose which drivers you wish to
 install.  You will also be prompted to install some data files.
 
+NOTE: The system will backup your config files, but only once.  That is, it
+will rename them to something like OpenThought.conf.backup.  So, if you already
+have a OpenThought.conf.backup file, it will be overwritten.
+
 If you don't have permissions to install modules on the system, see Appendix B
 below for simple instructions on installing modules locally, such as in your
 home directory.
 
 
-4. Edit the OpenPlugin/OpenThought Config files and tell them your correct paths
-
- vi /usr/local/etc/OpenPlugin.conf
- vi /usr/local/etc/OpenThought.conf
-
-
 Choose your own adventure!
 
-For a MOD_PERL 1.x INSTALLATION, goto to section IIa
+For a MOD_PERL 1.2x INSTALLATION, goto to section IIa
 For a MOD_PERL 1.99/2.x INSTALLATION, goto to section IIb
 For a STANDARD CGI INSTALLATION, goto to section IIc
 
 
-Section IIa (mod_perl 1.x users)
+Section IIa (mod_perl 1.2x users)
 --------------------------------
 
-5. Edit your OpenThoughtRoot and Prefix settings
+4. Add the following line to the end of your httpd.conf:
 
- vi /usr/local/etc/OpenThought-httpd.conf
+ Include /usr/local/etc/OpenThought-httpd-mod_perl1.conf
 
 Substitute "/usr/local/" with the directory you specified as the
-Prefix directory.
+Prefix directory during installation.
 
 
-6. Add the following line to the end of your httpd.conf:
-
- Include /usr/local/etc/OpenThought-httpd.conf
-
-
-7. Restart Apache
+5. Restart Apache
 
  /etc/rc.d/init.d/httpd restart
 
 
-8. Try the OpenThought demo app.  Browse to:
+6. Try the OpenThought demo app.  Browse to:
 
  http://127.0.0.1/OpenThought/demo_app/demo.pl        (if on your local machine)
 
@@ -97,14 +90,6 @@ that setup.
 Section IIb (mod_perl 1.99/2.x users)
 -------------------------------------
 
-OpenThought does work fine under mod_perl 1.99/2.x.  However, an
-Apache/mod_perl config file needs to be created in order to do so.  The one
-included which works with mod_perl 1.x does not work with mod_perl 1.99/2.x.
-
-So far, no such config file for 1.99/2.x is included with OpenThought.  If
-everything goes as planned, one will be available in the next release.  Sorry
-for the inconvienence.
-
 5. Change your OpenPlugin drivers
 
  vi /usr/local/etc/OpenPlugin.conf
@@ -115,16 +100,15 @@ for the inconvienence.
  For each plugin, change the driver from 'Apache' to 'Apache2'
 
 
-6. Create a config for Apache 2 / mod_perl 1.99/2.x
+6. Add the following line to the end of your httpd.conf:
 
-As mentioned above, a config file for Apache 2 needs to be created here.  It
-simply needs to enable mod_perl, and preload all the OpenThought and OpenPlugin
-modules.  An example of how it worked with Apache 1.x can be seen by looking at
-Openthought-httpd.conf.  One should be included with this distribution in the
-next release.
+ Include /usr/local/etc/OpenThought-httpd-mod_perl2.conf
+
+Substitute "/usr/local/" with the directory you specified as the
+Prefix directory during installation.
 
 
-7. Uncomment the MOD_PERL 1.99/2.x section of the demo
+8. Uncomment the MOD_PERL 1.99/2.x section of the demo
 
  The demo contains three sections, one for mod_perl 1.x users, one for mod_perl
  1.99/2.x users, and one for CGI users.  Using mod_perl 1.x is the default.
@@ -134,7 +118,7 @@ next release.
  comment out the lines in "MOD_PERL INSTALL".
 
 
-8. Restart Apache
+9. Restart Apache
 
  /etc/rc.d/init.d/httpd restart
 

@@ -1,7 +1,7 @@
 # This file is Copyright (c) 2000-2003 Eric Andreychek.  All rights reserved.
 # For distribution terms, please see the included LICENSE file.
 #
-# $Id: Template.pm,v 1.21 2003/04/22 15:07:13 andreychek Exp $
+# $Id: Template.pm,v 1.23 2003/08/12 03:07:23 andreychek Exp $
 #
 
 package OpenThought::Template;
@@ -9,7 +9,7 @@ package OpenThought::Template;
 use strict;
 use HTML::Template();
 
-$OpenThought::Template::VERSION = sprintf("%d.%02d", q$Revision: 1.21 $ =~ /(\d+)\.(\d+)/);
+$OpenThought::Template::VERSION = sprintf("%d.%02d", q$Revision: 1.23 $ =~ /(\d+)\.(\d+)/);
 
 # Template constructor
 sub new {
@@ -72,16 +72,18 @@ sub gen_template_params {
       session_id          => $OP->session->create(),
       wrong_browser       => $self->_escape_javascript_text(
                              $OP->config->get('options', 'wrong_browser')),
-      # This option requires a default
-      max_selectbox_width =>
-          $OP->config->get('options', 'max_selectbox_width') || "0",
       fetch_start         => $OP->config->get('options', 'fetch_start'),
       fetch_display       => $OP->config->get('options', 'fetch_display'),
       fetch_finish        => $OP->config->get('options', 'fetch_finish'),
-      run_mode_param      => $OP->config->get('options', 'run_mode_param'),
+      runmode_param       => $OP->config->get('options', 'runmode_param'),
       checked_true_value  => $OP->config->get('options', 'checked_true_value'),
       checked_false_value => $OP->config->get('options', 'checked_false_value'),
       application_url     => $self->{url},
+
+      # These options requires a default
+      max_selectbox_width =>
+          $OP->config->get('options', 'max_selectbox_width') || "0",
+      debug               => $OP->config->get('options', 'debug') || "0",
    };
 
 }

@@ -5,6 +5,120 @@ Key:
 ** An optional feature has been added that is probably worth checking out
 *** This is a new feature that will likely require a change in your code
 
+Changes since 0.64
+------------------
+
+* Changed the installation system to use Module::Install.
+
+* The demo was still using the deprecated SendParameters JavaScript functions,
+changed them to CallUrl.
+
+* Added more tests to the test suite.
+
+* If you had a group of radio buttons, and none was checked, you would get a
+JavaScript error.  This was in part due to the use of <= instead of < in the
+for loop that checked the radio buttons.  Whoops :-)
+
+* Some compatability updates to the frame template
+
+* Updated the text displayed when an unsupported browser loads an OpenThought
+application.
+
+* Improved the installation.  Directories in the config files are now updated
+at installation time with the proper paths.
+
+* Bump up the required version of OpenPlugin to 0.10.  This version fixes a
+number of bugs, and also includes support for Apache 2.
+
+* Bump up the required version of OpenThought::XML2Hash to 0.57.  There were
+some nasty bugs floating around in 0.56.
+
+* The & character wasn't being escaped properly, and may have caused an error
+any time that character was being sent to the server.  This has been corrected.
+
+* Events which update a portion of the screen, as opposed to events which
+download a complete new HTML interface, are no longer added to the browsers
+history.  That means the back button will only move you from screen to screen,
+instead of stepping through each screen update.
+
+* You can't use "about:blank" in IE6 while using SSL without a getting nasty
+error message about using an insecure page.  Argh.  So, the commFrame (the
+hidden frame) now grabs it's blank page from the server, which makes IE6 happy.
+It only has to do that once, when the app loads for the first time.  That's
+not too bad.
+
+** You can now update HTML in IE4.  Previously, this only worked in W3C
+compatible browsers (such as IE5+, Netscape 6+, and Mozilla).  Updating HTML
+still does not work in Netscape 4.x, let me know if you would like to implement
+that :-)  Of course, updating fields, javascript, and such works fine in
+Netscape 4, just not HTML.
+
+** Major updates to the documentation.
+
+** A debug frame has been implemented to assist in debugging your applications.
+It remains dormant until you enable it in the config file.  After enabling it,
+a new, resizable frame will appear at the bottom of your browser, where you can
+see all sorts of debugging information being sent.  This idea was suggested by
+a kind person at the OpenThought presentation during YAPC::Canada::2003. I
+should have gotten his name at the conference as this was a great idea.  This
+is still a bit experimental, some issues still need to be worked out.
+
+** You can now add local Apache changes to the file
+OpenThought-startup-local.pl.
+
+*** OpenThought now has a concept of events.  It can be called with one of three
+events, based on what the browser needs back.  An event is either "init", "ui",
+or "data".  The "init" event is the first event to occur, and happens when the
+browser needs the base application files.  The "ui" event occurs every time the
+browser wants to display a new user interface (usually HTML).  A "data" event
+occurs every time the browser has sent us a request in the background, this is
+where we can update the browser without reloading the page.
+
+*** To go with the new events concept, there is a new method called "event".
+The "event" method determines which event the application has been called with,
+and using parameters you pass in, calls the appropriate function.  You should
+no longer attempt to figure out how your application was called by using the
+"OpenThought" GET parameter.  Use this new "event" method instead.
+
+*** To determine the current event type, there is a new method called
+"event_type".
+
+*** If no item in a select list is checked, it makes much more sense to return
+the empty string than -1.  The value -1 could often be a legitimate value
+within a select list, making it near impossible to test for it.  So, select
+lists which are unchecked now return the empty string.
+
+*** The httpd include files which enable mod_perl have gone through a
+significant change.  Instead of being written in Perl, they are now straight
+Apache syntax.  The Perl was flexible, but often hard to understand or add to.
+They should now be more straight forward.  It will now also work in Apache 2.
+
+*** You should no longer manually call the deserialize method, unless you're
+doing something unusual with it (which probably isn't the case).  It will be
+called for you by OpenThought's new() constructor.
+
+*** The names of the run time settings have been updated to include
+underscores.  The settings autoclear, maxselectboxwidth,
+fetchstart, fetchdisplay, fetchfinish, and runmodeparam are now know as
+auto_clear, max_selectbox_width, fetch_start, fetch_display, fetch_finish,
+and runmode_param.  This makes them more consistant with the config file, and
+they're also more readable.
+
+*** The key named "run_mode_param" in the config file is now known as
+"runmode_param".
+
+*** The deprecated "SendParameters" JavaScript function has now been removed.
+You should use "CallUrl" instead.
+
+*** The function "get_application_base" is just far too much to type.  It is
+now called "init".  Using "get_application_base" will continue to work for now,
+but is deprecated.
+
+*** The default OpenThoughtRoot is no longer under Apache's DocumentRoot.  We
+get bonus points for security here.  Next release, expect to see the default
+location for templates and modules be different from the OpenThoughtRoot.
+
+
 Changes since 0.63
 ------------------
 
@@ -198,6 +312,7 @@ future expansion easier.
 executed, in a particular order.  This order is now customizable with the
 'order' parameter.
 
+
 Changes since 0.52
 ------------------
 
@@ -296,6 +411,7 @@ and squash -- several pesky bugs that wanted to be tied to a particular layout.
 sent to and from the browser (for most elements, anyway).  I think you'll
 really like this feature :-)
 
+
 Changes since 0.40
 ------------------
 
@@ -373,6 +489,7 @@ display an error in 1 function call now.
 ** Now includes a Makefile.PL, which handles installing all the CPAN module
 prerequisites for you, and copies the OpenThough modules into place.  You still
 have to do some work though.
+
 
 Changes since 0.32
 ------------------

@@ -1,28 +1,38 @@
 <html>
 <head>
-   <meta HTTP-EQUIV="Pragma" CONTENT="no-cache">
-   <meta HTTP-EQUIV="expired" CONTENT="01-Mar-94 00:00:01 GMT">
-<TMPL_INCLUDE NAME="main-template.js">
+   <meta http-equiv="Pragma" content="no-cache">
+   <meta http-equiv="expired" content="01-Mar-94 00:00:01 GMT">
+<tmpl_include name="main-template.js">
 </head>
 
-  <frameset rows="100%,0/*" border="0" frameborder="0" framespacing="0">
+  <tmpl_if name="debug">
+    <frameset rows="90%,10%,0/*" border="5" frameborder="1" framespacing="5">
+  <tmpl_else>
+    <frameset rows="100%,0/*" border="0" frameborder="0">
+  </tmpl_if>
 
-    <frame src="<TMPL_VAR NAME=application_url>?OpenThought=1"
+    <frame src="<tmpl_var name=application_url>?OpenThought=<OpenThought><settings><event>ui</event></settings></OpenThought>"
            name="contentFrame" scrolling="auto"
            frameborder="0" marginheight="0" marginwidth="0"
            onLoad="parent.document.title = parent.contentFrame.document.title">
 
-    <frame src="about:blank" name="commFrame"
-           scrolling="no" noresize border="0">
+    <tmpl_if name="debug">
+      <frame src="about:blank" name="debugFrame"
+             scrolling="auto" border="5" onLoad="DebugFrameInfo()">
+    </tmpl_if>
+
+    <frame src="<tmpl_var name=application_url>?OpenThought=<OpenThought><settings><event>blank</event></settings></OpenThought>" name="commFrame"
+           scrolling="no" border="0" noresize>
 
        <noframes>
           <body>
-             This is an <a href="openthought.net">OpenThought</a>
-             application, and requires frames.  Netscape 4.x+, IE 4.x+,
-             Mozilla 0.8+, Opera 6.x+, Konqueror 3.x+ are all known to work.
+             This application uses the <a
+             href="http://OpenThought.net">OpenThought</a> Application
+             Environment, and requires a browser which supports frames.  This
+             includes Netscape 4.x+, Internet Explorer 4.x+, Mozilla 0.8+,
+             Opera 6.x+, and Konqueror 3.x+.
           </body>
        </noframes>
    </frameset>
 
 </html>
-

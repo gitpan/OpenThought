@@ -10,7 +10,7 @@ use OpenThoughtTests();
 
 $OpenThought::Prefix = "./openthought";
 
-my $o  = OpenThought->new({ OpenThoughtData => "openthought/" });
+my $o  = OpenThought->new( "", { OpenThoughtData => "openthought/" });
 
 # The sample/test XML packet
 my $openthought = "<OpenThought><fields><selectlist>linux</selectlist></fields><expr><run_mode>mode3</run_mode></expr><settings><session_id>96b8d09c1459c43465f5acc6f9c61787</session_id><need_script>1</need_script><runmode_param>run_mode</runmode_param><runmode>mode3</runmode></settings></OpenThought>";

@@ -40,6 +40,8 @@ $demo->run();
 
 #use File::Basename;
 #$Demo::modperl2_path = File::Basename::dirname( $ENV{SCRIPT_FILENAME} );
+#($Demo::modperl2_path) =
+#        $Demo::modperl2_path =~ m/(.*)/ if -d $Demo::modperl2_path;
 #push @INC, $Demo::modperl2_path;
 #require Demo;
 #my $r = shift;

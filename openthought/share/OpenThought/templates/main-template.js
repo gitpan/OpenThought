@@ -51,48 +51,50 @@ fetchDisplay = '<TMPL_VAR NAME=fetch_display>';
 fetchFinish  = '<TMPL_VAR NAME=fetch_finish>';
 
 runmode = '';
-runmodeParam = '<TMPL_VAR NAME=run_mode_param>';
+runmodeParam = '<TMPL_VAR NAME=runmode_param>';
 
+// Set the debug level
+debug = <TMPL_VAR NAME=debug>;
 
-// Deprecated: We now use CallUrl(), this is here temporarily for backwards
-// compatability
-function SendParameters() {
-    var commFrame = 1;
-
-    // Serialize the parameters we were passed into an XML Packet
-    var XMLPacket = Hash2XML(GenParams(SortParams(SendParameters.arguments)));
-
-    Send(SendParameters.arguments[0], commFrame, XMLPacket);
+if ( debug == 0 ) {
+    set_debug( false );
+}
+else {
+    set_debug( true );
 }
 
 // This is the function that will be communicating with the server
 function CallUrl() {
-    var commFrame = 1;
+    var eventType = 'data';
 
     // Serialize the parameters we were passed into an XML Packet
-    var XMLPacket = Hash2XML(GenParams(SortParams(CallUrl.arguments)));
+    var XMLPacket = Hash2XML(GenParams(
+                                SortParams(CallUrl.arguments), eventType ));
 
-    Send(CallUrl.arguments[0], commFrame, XMLPacket);
+    Send(CallUrl.arguments[0], eventType, XMLPacket);
 }
 
 // This loads a new page in the content frame
 function FetchHtml() {
-    var commFrame = 0;
+    var eventType = 'ui';
 
     // Serialize the parameters we were passed into an XML Packet
-    var XMLPacket = Hash2XML(GenParams(SortParams(FetchHtml.arguments)));
+    var XMLPacket = Hash2XML(GenParams(
+                                SortParams(FetchHtml.arguments), eventType ));
 
     ExpireCache();
-    Send(FetchHtml.arguments[0], commFrame, XMLPacket);
+    Send(FetchHtml.arguments[0], eventType, XMLPacket);
 }
 
-function Send(url, commFrame, XMLPacket) {
+function Send(url, eventType, XMLPacket) {
 
-    var date = new Date();
-    bench = "Params: " + date.getTime() + "\n";
+    //var date = new Date();
+    //bench = "Params: " + date.getTime() + "\n";
 
     // Update the message on the status bar
-    window.status = fetchStart;
+    if (eventType == "data") {
+        window.status = fetchStart;
+    }
 
     //var date = new Date();
     //bench += "Ser: " + date.getTime() + "\n";
@@ -100,11 +102,24 @@ function Send(url, commFrame, XMLPacket) {
     // Now that the XML packet is created, reset the runmode
     set_runmode('');
 
-    // Post request to server via the form in the controlFrame
+    // Post request to server via the form in the commFrame
     //var date = new Date();
     //bench += "Sent: " + date.getTime() + "\n";
 
-    parent.frames[commFrame].location.href = url + "?OpenThought=" + XMLPacket;
+    if ( get_debug() ) {
+        parent.debugFrame.document.write("Data sent to ", url, ":");
+        parent.debugFrame.document.write('<pre>', escape_html(XMLPacket), '</pre>')
+        parent.debugFrame.document.write("<hr>")
+    }
+    if (eventType == "ui") {
+        parent.contentFrame.location.href = url + "?OpenThought=" + XMLPacket;
+    }
+    else {
+        parent.commFrame.location.replace( url + "?OpenThought=" + XMLPacket );
+    }
+
+    // Set the title of the application, based on the title listed in the
+    // content frame
     parent.document.title = parent.contentFrame.document.title;
 
 }
@@ -123,20 +138,12 @@ function OpenThoughtUpdate(Content) {
     {
         FillFields(Content);
     }
-    // Something didn't go right, reply accordingly
-    else
-    {
-        if(nullReply != "") {
-            alert(nullReply);
-        }
-        return;
-    }
 
     // Display text on the status bar stating that we received information
     window.status = fetchFinish;
 
-    var date = new Date();
-    bench += "Done: " + date.getTime() + "\n";
+    //var date = new Date();
+    //bench += "Done: " + date.getTime() + "\n";
     //alert(bench);
     return;
 }
@@ -144,6 +151,10 @@ function OpenThoughtUpdate(Content) {
 // Digs through the browsers DOM hunting down a particular form element
 function FindObject(element, d) {
 
+    if ( get_debug() ) {
+        parent.debugFrame.document.writeln("Searching for element [",
+                                            element, "]<br/>");
+    }
     // If we have this particular object cached in our hash, use the cached
     // version (Just remember, Dr Suess wrote the "Cat in the Hat".  It's me
     // who wrote "The Cache in the Hash" ;-)
@@ -320,7 +331,7 @@ function FillFields(Content)
                     break;
             }
         }
-        else if((w3c) && (object.innerHTML)) {
+        else if(((w3c) || (ie4)) && (object.innerHTML)) {
             object.innerHTML = Content[fieldName];
         }
     }
@@ -355,15 +366,17 @@ return param;
 }
 
 // Generates the key/value pairs to send to the server
-function GenSettingParams()
+function GenSettingParams(eventType)
 {
     var param  = new Object();
+
+    param["event"] = eventType;
 
     param["session_id"] = get_sessionid();
 
     param["need_script"] = 1;
 
-    param["runmode_param"] = get_runmodeparam();
+    param["runmode_param"] = get_runmode_param();
 
     if(get_runmode != "") {
         param["runmode"] = get_runmode();
@@ -384,7 +397,7 @@ function GenExprParams(elements)
 
         param[keyval[0]] = keyval[1];
 
-        if( get_runmodeparam() == keyval[0] ) {
+        if( get_runmode_param() == keyval[0] ) {
             set_runmode( keyval[1] );
         }
     }
@@ -433,11 +446,11 @@ function GenFieldParams(elements)
                     break;
             }
         }
-        else if((w3c) && (object.innerHTML)) {
+        else if(((w3c) || (ie4)) && (object.innerHTML)) {
             param[elements[i]] = object.innerHTML;
         }
 
-        if( get_runmodeparam() == elements[i] ) {
+        if( get_runmode_param() == elements[i] ) {
             set_runmode( param[elements[i]] );
         }
 
@@ -447,7 +460,7 @@ return param;
 }
 
 // Build a single hash containing all the data to be sent to the server
-function GenParams(elements) {
+function GenParams(elements, eventType) {
 
     var params = new Object();
 
@@ -460,7 +473,7 @@ function GenParams(elements) {
         params["expr"]  = GenExprParams(elements["expr"]);
     }
     // Add settings, there will always be at least one
-    params["settings"]  = GenSettingParams();
+    params["settings"]  = GenSettingParams(eventType);
 
 return params;
 }
@@ -472,7 +485,7 @@ function SelectValue(element)
         return element.options[element.selectedIndex].value;
     }
     else {
-        return -1;
+        return "";
     }
 }
 
@@ -500,7 +513,7 @@ function CheckboxValue(element)
 // Figure out which option is selected in our radio button
 function RadioValue(element)
 {
-    for (var i=0; i <= element.length; i++)
+    for (var i=0; i < element.length; i++)
     {
         if(element[i].checked == true)
         {
@@ -559,6 +572,12 @@ function escape_xml( xmlchar ) {
 
     xmlchar = xmlchar.toString();
 
+    if(xmlchar.indexOf("&") != -1) {
+
+        var regexp = /&/g;
+        xmlchar = xmlchar.replace( regexp, "\&amp;" );
+    }
+
     if(xmlchar.indexOf("<") != -1) {
 
         var regexp = /\</g;
@@ -572,6 +591,23 @@ function escape_xml( xmlchar ) {
     }
 
     return escape(xmlchar);
+}
+
+function escape_html( htmlchar ) {
+
+    if(htmlchar.indexOf("<") != -1) {
+
+        var regexp = /\</g;
+        htmlchar = htmlchar.replace( regexp, "\&lt;" );
+    }
+
+    if(htmlchar.indexOf(">") != -1) {
+
+        var regexp = /\>/g;
+        htmlchar = htmlchar.replace( regexp, "\&gt;" );
+    }
+
+    return htmlchar;
 }
 
 // Used for the tabs - hide the current layer, show the new one
@@ -620,6 +656,31 @@ function ExpireCache() {
 
 }
 
+// Called if the debug frame is enabled -- this will send some basic
+// information into the frame so users understand what it does
+function DebugFrameInfo() {
+
+    with ( parent.debugFrame.document ) {
+        write('<html><head><title>Debug</title></head><body>');
+        write('<table border="0" width="100%"><tr valign="top"><td width="20%">');
+        write('<h2>Debug Frame</h2>');
+        write('</td><td>');
+        write('Welcome to the OpenThought debug frame! ');
+        write('This was enabled using the <i>debug</i> option in the config file. ');
+        write('Debugging info will be sent to this frame, which hopefully will help you to correct any problems you are having. ');
+        write('You can use the frame border above to make this frame bigger or smaller, and you can also use the scoll bar to scroll up and down. ');
+        write('Some browsers based on the Mozilla engine may act as if they are still loading a page upon enabling this frame, the icon in the top right corner of your browser might keep spinning. ');
+        write('This appears to be an unfortunate browser bug, but simply hitting the <i>Stop</i> button will correct it. ');
+        write('Good luck, and have fun! ');
+        write('</td></tr>');
+        write('<tr><td colspan="2">');
+        write('Debug debug info follows: <br/>');
+        write('<hr noshade>');
+        write('</td></tr></table>');
+        write('</body></html>');
+    }
+}
+
 // ------------------------------------------------------------------------//
 //   Accessor Methods
 //
@@ -637,22 +698,22 @@ function set_autoclear(val) {
     }
 
 }
-function set_fetchstart(msg)   { fetchStart   = msg; }
-function set_fetchdisplay(msg) { fetchDisplay = msg; }
-function set_fetchfinish(msg)  { fetchFinish  = msg; }
-function set_nullreply(msg)    { nullReply    = msg; }
-function set_runmode(msg)      { runmode      = msg; }
-function set_runmodeparam(msg) { runmodeParam = msg; }
+function set_fetch_start(msg)   { fetchStart   = msg; }
+function set_fetch_display(msg) { fetchDisplay = msg; }
+function set_fetch_finish(msg)  { fetchFinish  = msg; }
+function set_runmode(msg)       { runmode      = msg; }
+function set_runmode_param(msg) { runmodeParam = msg; }
+function set_debug(msg)         { debug        = msg; }
 
-function get_sessionid()         { return sessionid;    }
-function get_maxselectboxwidth() { return maxSelectBoxWidth; }
-function get_autoclear()         { return autoClear;    }
-function get_fetchstart()        { return fetchStart;   }
-function get_fetchdisplay()      { return fetchDisplay; }
-function get_fetchfinish()       { return fetchFinish;  }
-function get_nullreply()         { return nullReply;    }
-function get_runmode()           { return runmode;      }
-function get_runmodeparam()      { return runmodeParam; }
+function get_sessionid()           { return sessionid;    }
+function get_max_selectbox_width() { return maxSelectBoxWidth; }
+function get_auto_clear()          { return autoClear;    }
+function get_fetch_start()         { return fetchStart;   }
+function get_fetch_display()       { return fetchDisplay; }
+function get_fetch_finish()        { return fetchFinish;  }
+function get_runmode()             { return runmode;      }
+function get_runmode_param()       { return runmodeParam; }
+function get_debug()               { return debug;        }
 
 // -->
 </script>

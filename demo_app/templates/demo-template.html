@@ -39,7 +39,7 @@
 <tr>
   <td align=center colspan=2>
   <input type=button name=search value='Get OS List!'
-         onClick="parent.SendParameters('demo.pl','run_mode=mode2')" maxlength=30><br>
+         onClick="parent.CallUrl('demo.pl','run_mode=mode2')" maxlength=30><br>
   </td>
 </tr>
 
@@ -47,7 +47,7 @@
   <td align=center>
     <b>OS Names</b><br>
     <font size=2>
-    <select name=selectlist size=6 onChange="parent.SendParameters('demo.pl', 'selectlist', 'run_mode=mode3', 'app_title')">
+    <select name="selectlist" size=6 onChange="parent.CallUrl('demo.pl', 'selectlist', 'run_mode=mode3', 'app_title')">
       <option>-- Download the OS List! --</option>
     </select>
     </font>

@@ -21,7 +21,7 @@ sub setup {
     );
 
     # The default run mode, this mode is run if we aren't explicitely sent one.
-    $self->start_mode( 'mode1' );
+    $self->start_mode('mode1');
 
     # Define what the name of our run mode param is
     $self->mode_param('run_mode');
@@ -40,27 +40,19 @@ sub cgiapp_init {
     # this case, we are creating a new property -- an OpenThought object.
     $self->param( 'OpenThought' => OpenThought->new( $OP ) );
 
-    # Data is sent from the browser, to us, in an XML format.  The following
-    # converts that XML format to typical input parameters, giving us the
-    # ability to access all data in the form of:
-    #   $param = $self->OP->param->get_incoming( 'param_name' );
-    $OP->param->set_incoming(
-                $self->param( 'OpenThought' )->deserialize(
-                        $OP->param->get_incoming( 'OpenThought' )));
-
     # Take the session_id passed to us by the browser, and fetch the session
     # data it is associated with
     my $session = $OP->session->fetch(
-                $OP->param->get_incoming( 'session_id' ));
+                $OP->param->get_incoming('session_id'));
 
     # Make the session data a property of this class
     $self->param( 'session' => $session );
 
 }
 
-# This sub is run immediatly before the run_mode, and is capable of modifying
-# the run_mode if necessary.
-# This should not be called manually, it will be called by CGI::App for us.
+# This sub is run immediatly before the actual run_mode sub and after "setup",
+# and is capable of modifying the run_mode if necessary.  This should not be
+# called manually, it will be called by CGI::App for us.
 sub cgiapp_prerun {
     my ( $self, $run_mode ) = @_;
 
@@ -86,34 +78,43 @@ sub session_expired {
     return $self->param( 'OpenThought' )->serialize( $data );
 }
 
-# Our first run mode -- this method initializes the pieces of the demo app
+# Our first (and default) run mode -- this method initializes the pieces of the
+# demo app
 sub init_demo {
     my $self = shift;
     my $OP   = $self->OP;
+    my $OT   = $self->param('OpenThought');
 
-    # If we have a parameter 'OpenThought', that means the 'base' of our app is
-    # loaded, and that it's requesting it's content
-    if( $OP->param->get_incoming( 'OpenThought' )) {
+    return $OT->event( init => sub { return $OT->init       },
+                       ui   => sub { return $self->init_ui  },
+                       #data => sub { return $self->default_data_handler },
 
-        my $template;
-        # load_tmpl() uses HTML::Template to load a template document
+                       # The "data" handler above isn't necessary when using
+                       # run modes via OpenPlugin::Application (as this demo
+                       # does), as this particular subroutine will never be
+                       # called when a run mode is sent in as a parameter
+    );
+}
 
-        # This "if" statement is just to allow us to run under mod_perl 1.x and
-        # 2.x at the same time, mod_perl 2.x doesn't like relative paths
-        if ( $Demo::modperl2_path ) {
-            $template = $self->load_tmpl( "${Demo::modperl2_path}/templates/demo-template.html" );
-        }
-        else {
-            $template = $self->load_tmpl( 'templates/demo-template.html' );
-        }
-        return $template->output;
+
+sub init_ui {
+    my $self = shift;
+
+    my $template;
+
+    # load_tmpl() uses HTML::Template to load a template document
+
+    # This "if" statement is just to allow us to run under mod_perl 1.x and
+    # 2.x at the same time, mod_perl 2.x doesn't like relative paths
+    if ( $Demo::modperl2_path ) {
+        $template = $self->load_tmpl(
+                "${Demo::modperl2_path}/templates/demo-template.html" );
     }
-
-    # If we don't have an 'OpenThought' parameter, we need to send the 'base'
-    # of our app
     else {
-        return $self->param('OpenThought')->get_application_base();
+        $template = $self->load_tmpl('templates/demo-template.html');
     }
+
+    return $template->output;
 }
 
 # This is the second run mode.  If we are here, it means the user clicked the
@@ -284,12 +285,13 @@ sub get_os_info {
     }
 
     # Change the name of the title, which is written in HTML
-    $field_data->{ app_title } = "OS Info: $field_data->{os}";
+    my $html_data = { app_title => "OS Info: $field_data->{os}" };
 
     # Send the data we just defined to the browser, and focus the form element
     # named 'selectlist'
     return $self->param('OpenThought')->serialize({
                                             fields => $field_data,
+                                            html   => $html_data,
                                             focus  => "selectlist",
                                          });
 }

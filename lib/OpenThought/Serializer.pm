@@ -1,41 +1,41 @@
 # This file is Copyright (c) 2000-2003 Eric Andreychek.  All rights reserved.
 # For distribution terms, please see the included LICENSE file.
 #
-# $Id: Serializer.pm,v 1.31 2003/04/04 03:18:04 andreychek Exp $
+# $Id: Serializer.pm,v 1.33 2003/08/20 03:11:01 andreychek Exp $
 #
 
 package OpenThought::Serializer;
 
 use strict;
 
-$OpenThought::Serializer::VERSION = sprintf("%d.%02d", q$Revision: 1.31 $ =~ /(\d+)\.(\d+)/);
+$OpenThought::Serializer::VERSION = sprintf("%d.%02d", q$Revision: 1.33 $ =~ /(\d+)\.(\d+)/);
 
 # Defines the names, types, and default order of all the possible options and
 # settings for the serialize and settings functions
 my $PARAMS  = {
-        order    => [   "autoclear",
-                        "maxselectboxwidth",
-                        "runmodeparam",
-                        "fetchstart",
-                        "fetchdisplay",
-                        "fetchfinish",
+        order    => [   "auto_clear",
+                        "max_selectbox_width",
+                        "runmode_param",
+                        "fetch_start",
+                        "fetch_display",
+                        "fetch_finish",
                         "fields",
                         "html",
                         "javascript",
                         "url",
                         "focus",
                     ],
-        fields            => { type => "option", },
-        html              => { type => "option", },
-        javascript        => { type => "option", },
-        url               => { type => "option", },
-        focus             => { type => "option", },
-        autoclear         => { type => "setting", },
-        maxselectboxwidth => { type => "setting", },
-        runmodeparam      => { type => "setting", },
-        fetchstart        => { type => "setting", },
-        fetchdisplay      => { type => "setting", },
-        fetchfinish       => { type => "setting", },
+        fields              => { type => "option", },
+        html                => { type => "option", },
+        javascript          => { type => "option", },
+        url                 => { type => "option", },
+        focus               => { type => "option", },
+        auto_clear          => { type => "setting", },
+        max_selectbox_width => { type => "setting", },
+        runmode_param       => { type => "setting", },
+        fetch_start         => { type => "setting", },
+        fetch_display       => { type => "setting", },
+        fetch_finish        => { type => "setting", },
 };
 
 # Serializer Constructer
@@ -187,7 +187,7 @@ sub url {
     my $sep = '?';
     $sep = '&' unless index($url, '?') eq "-1";
 
-    $url = "'${url}${sep}OpenThought=1&session_id=$session_id'";
+    $url = "'${url}${sep}OpenThought=<OpenThought><settings><session_id>$session_id</session_id><event>ui</event></settings></OpenThought>'";
 
     my $javascript_code = "parent.ExpireCache();";
     $javascript_code   .= "parent.frames[0].document.location.href = $url;";
