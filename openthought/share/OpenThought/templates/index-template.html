@@ -1,0 +1,27 @@
+<html>
+<head>
+   <meta HTTP-EQUIV="Pragma" CONTENT="no-cache">
+   <meta HTTP-EQUIV="expired" CONTENT="01-Mar-94 00:00:01 GMT">
+<TMPL_INCLUDE NAME="main-template.js">
+</head>
+
+  <frameset rows="100%,0/*" border="0" frameborder="0" framespacing="0">
+
+    <frame src="<TMPL_VAR NAME=application_url>?OpenThought=1"
+           name="contentFrame" scrolling="auto"
+           frameborder="0" marginheight="0" marginwidth="0">
+
+    <frame src="about:blank" name="commFrame"
+           scrolling="no" noresize border="0">
+
+       <noframes>
+          <body>
+             This is an <a href="openthought.net">OpenThought</a>
+             application, and requires frames.  Netscape 4.x+, IE 4.x+,
+             Mozilla 0.8+, Opera 6.x+, and Konqueror 3.x+ are all known to work.
+          </body>
+       </noframes>
+   </frameset>
+
+</html>
+

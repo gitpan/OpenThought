@@ -1,0 +1,10 @@
+OpenThought Engine TODO List                            http://openthought.net
+----------------------------                           eric at openthought.net
+
+* Write instructions for getting OpenThought to work on Windows
+* Write plugins and sample usages of OpenThought utilizing languages other then
+  Perl.  For example, plugins might use SOAP, Jabber, XML-RPC, etc.
+* Implement DHTML Tabs to switch between application screens
+* Write (or find an existing) a better mod_perl handler for OpenThought use.
+  Apache::Registry works fabulously, but we could use something smaller and
+  more efficient, perhaps sacrificing some error checking.
